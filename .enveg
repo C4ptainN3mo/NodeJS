@@ -2,6 +2,6 @@ PORT = 9000
 NODE_ENV = development
 DB_USERNAME = root
 DB_PASSWORD = 
-DB_DATABASE = databaseGC
+DB_DATABASE = databasecepet
 DB_HOST = 127.0.0.1
 DB_DIALECT = mysql
