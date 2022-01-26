@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const validationRegister = require("../validator/authValidator");
 const validationMiddleWare = require("../middleware/validationMiddleWare");
-const { register } = require("../controllers/AuthController");
+const { product } = require("../controllers/AuthController");
 const {
   index,
   detail,
@@ -14,14 +14,13 @@ router.get("/", (req, res) => {
   res.send({ status: "ok" });
 });
 
-router.post("/register", validationRegister, validationMiddleWare, register);
+router.post("/product", validationMiddleWare, product);
 
 // users
 
-router.get("/users", index);
-router.get("/users/:id", detail);
-router.get("/users/email/:email", detailByEmail);
-router.delete("/users/:id", destroy);
-router.put("/users/update/:id", update);
+router.get("/productDetail", index);
+router.get("/product/:id", detail);
+router.delete("/product/:id", destroy);
+router.put("/product/update/:id", update);
 
 module.exports = router;

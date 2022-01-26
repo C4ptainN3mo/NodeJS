@@ -1,14 +1,13 @@
 const bcrypt = require("bcrypt");
-const UserModel = require("../models").user;
-const register = async (req, res) => {
+const UserModel = require("../models").productku;
+const product = async (req, res) => {
   try {
     let body = req.body;
-    body.password = await bcrypt.hashSync(body.password, 10);
-    const users = await UserModel.create(body);
-    console.log(users);
+    const product = await UserModel.create(body)
+    console.log(product);
     res.status(201).json({
       status: "succes",
-      msg: "Register berhasil",
+      msg: "Register produk berhasil",
       data: body,
     });
   } catch (error) {
@@ -17,4 +16,4 @@ const register = async (req, res) => {
   res.sendStatus(422);
 };
 
-module.exports = { register };
+module.exports = { product };
