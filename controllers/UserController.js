@@ -1,8 +1,8 @@
-const UserModel = require("../models").user;
+const UserModel = require("../models").ProductKu;
 const index = async (req, res) => {
   try {
     const users = await UserModel.findAll({
-      attributes: ["id", "name", "email", "status", "jenisKelamin"],
+      attributes: ["id", "kodeProduk", "namaProduk", "jumlah", "hargaSatuan"],
     });
     console.log(users);
     return res.json({
@@ -95,9 +95,8 @@ const destroy = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-
     const { id } = req.params;
-    const { name } = req.body;
+    const { namaProduk, hargaSatuan, jumlah,name } = req.body;
     const usersUpdate = await UserModel.findByPk(id);
     if (usersUpdate === null) {
       return res.json({
@@ -107,7 +106,9 @@ const update = async (req, res) => {
     }
     await UserModel.update(
       {
-        name: name,
+        namaProduk,
+        hargaSatuan,
+        jumlah
       },
       {
         where: {
@@ -117,7 +118,7 @@ const update = async (req, res) => {
     );
     return res.json({
       status: "Berhasil",
-      messege: "User Berhasil Diupdate",
+      messege: "Produk Berhasil Diupdate",
     });
   } catch (error) {
     console.log(error);

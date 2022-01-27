@@ -8,13 +8,13 @@ const {
   detail,
   detailByEmail,
   destroy,
-  update
+  update,
 } = require("../controllers/UserController");
 router.get("/", (req, res) => {
   res.send({ status: "ok" });
 });
 
-router.post("/product", validationMiddleWare, product);
+router.post("/product", validationRegister, validationMiddleWare,  product);
 
 // users
 

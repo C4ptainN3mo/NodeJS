@@ -1,9 +1,9 @@
 const bcrypt = require("bcrypt");
-const UserModel = require("../models").productku;
+const ProductModel = require("../models").ProductKu;
 const product = async (req, res) => {
   try {
     let body = req.body;
-    const product = await UserModel.create(body)
+    const product = await ProductModel.create(body);
     console.log(product);
     res.status(201).json({
       status: "succes",
