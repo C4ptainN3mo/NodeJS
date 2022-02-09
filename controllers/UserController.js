@@ -1,8 +1,52 @@
 const UserModel = require("../models").user;
+const bcrypt = require("bcrypt");
+const { Op } = require("sequelize");
 const index = async (req, res) => {
   try {
+    const { keyword, id } = req.query;
+
+    // cari data dengan nama arjuna atau id = 1
     const users = await UserModel.findAll({
-      attributes: ["id", "name", "email", "status", "jenisKelamin"],
+      attributes: ["id", ["name", "nama"], "email", "status", "jenisKelamin"],
+      where: {
+        // [Op.or] : {
+        //   name : name,
+        //   id : 2
+        // } // Or
+        // name: {
+        //   [Op.eq]: name,
+        // },// jika hanya satu
+        // name: {
+        //   [Op.ne] : name
+        // } // akan mencari selain nama yang dimasukkan
+        // id: {
+        //   [Op.gt] : id
+        // } // lebih dari angka yang dimasukkan
+        // name: {
+        //   [Op.like] : '$una'
+        // } // nama yang mendekati
+
+        [Op.or]: [
+          {
+            name: {
+              [Op.like]: `%${keyword}%`,
+            },
+          },
+          {
+            email: {
+              [Op.like]: `%${keyword}%`,
+            },
+          },
+          {
+            jenisKelamin: {
+              [Op.like]: `%${keyword}%`,
+            },
+          },
+        ], // membuat search
+      },
+      offset: [], // mulai dari
+      limit : [], // banyak data yang ditampilkan
+      order : [['id', 'ASC']] // mengurutkan
     });
     console.log(users);
     return res.json({
@@ -95,7 +139,6 @@ const destroy = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-
     const { id } = req.params;
     const { name } = req.body;
     const usersUpdate = await UserModel.findByPk(id);
@@ -121,7 +164,7 @@ const update = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    console.log(error);
+
     return res.status(403).json({
       status: "fail",
       msg: "there's a mistake",
@@ -129,4 +172,47 @@ const update = async (req, res) => {
   }
 };
 
-module.exports = { index, detail, detailByEmail, destroy, update };
+async function Createmany(req, res) {
+  // payload.map(async (data) => {
+  //   data.password = await bcrypt.hashSync(`${payload[i].password}`, 10);
+  // })
+  // res.json({
+  //   data: payload,
+  // });
+  try {
+    let { payload } = req.body;
+    // payload.map((data) => {
+
+    // })
+    for (let i = 0; i < payload.length; i++) {
+      payload[i].password = await bcrypt.hashSync(`${payload[i].password}`, 10);
+    }
+    // await UserModel.bulkCreate(payload);
+    let countBerhasil = 0;
+    let countGagal = 0;
+    await Promise.all(
+      payload.map(async (data) => {
+        try {
+          await UserModel.create(data);
+          countBerhasil = countBerhasil + 1;
+        } catch (error) {
+          console.log(error);
+          countGagal = countGagal + 1;
+        }
+      })
+    );
+    return res.status(201).json({
+      status: "success",
+      msg: "user berhasil ditemukan",
+      status: `Berhasil menambah ${countBerhasil} dan gagal ${countGagal}`,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(403).json({
+      status: "fail",
+      msg: "there's a mistake",
+    });
+  }
+}
+
+module.exports = { index, detail, detailByEmail, destroy, update, Createmany };

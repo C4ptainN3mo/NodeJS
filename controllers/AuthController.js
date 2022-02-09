@@ -24,7 +24,7 @@ const login = async (req, res) => {
   // check email
   // check kecocokan email dan password
   try {
-    const { email, password } = req.body;
+    const { email, password, id, jenisKelamin, name } = req.body;
     const users = await UserModel.findOne({
       where: {
         email: email,
@@ -50,16 +50,53 @@ const login = async (req, res) => {
         email: users.email,
       },
       process.env.JWT_ACCESS_TOKEN,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
     return res.json({
-      status: "succes",
+      status: "success",
       msg: "You are logged in",
       token: token,
+      data: users,
     });
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports = { register, login };
+const authme = async (req, res) => {
+  const { authorization } = req.headers;
+  const token = authorization.split(" ")[1];
+  jwt.verify(token, process.env.JWT_ACCESS_TOKEN, async (err, decode) => {
+    if (err) {
+      return res.status(401).json({
+        status: "fail",
+        msg: "invalid",
+        data: err,
+      });
+    } else {
+      try {
+        req.email = decode?.email;
+        const tokenLu = jwt.sign(
+          {
+            email: req.email,
+          },
+          process.env.JWT_ACCESS_TOKEN,
+          { expiresIn: "1d" }
+        );
+        return res.json({
+          status: "succes",
+          msg: "You got your new token",
+          token: tokenLu,
+        });
+      } catch (error) {
+        return res.status(401).json({
+          status: "fail",
+          msg: "invalid",
+          data: error,
+        });
+      }
+    }
+  });
+};
+
+module.exports = { register, login, authme };
