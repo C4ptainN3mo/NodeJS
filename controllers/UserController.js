@@ -1,9 +1,10 @@
 const UserModel = require("../models").user;
 const bcrypt = require("bcrypt");
+const { user } = require("pg/lib/defaults");
 const { Op } = require("sequelize");
 const index = async (req, res) => {
   try {
-    const { keyword, id } = req.query;
+    let { keyword, page, pageSize, orderBy, sortBy } = req.query;
 
     // cari data dengan nama arjuna atau id = 1
     const users = await UserModel.findAll({
@@ -26,27 +27,30 @@ const index = async (req, res) => {
         //   [Op.like] : '$una'
         // } // nama yang mendekati
 
-        [Op.or]: [
-          {
-            name: {
-              [Op.like]: `%${keyword}%`,
+        ...(keyword !== undefined && {
+          [Op.or]: [
+            {
+              name: {
+                [Op.like]: `%${keyword}%`,
+              },
             },
-          },
-          {
-            email: {
-              [Op.like]: `%${keyword}%`,
+            {
+              email: {
+                [Op.like]: `%${keyword}%`,
+              },
             },
-          },
-          {
-            jenisKelamin: {
-              [Op.like]: `%${keyword}%`,
+            {
+              jenisKelamin: {
+                [Op.like]: `%${keyword}%`,
+              },
             },
-          },
-        ], // membuat search
+          ], // membuat search
+        }),
       },
-      offset: [], // mulai dari
-      limit : [], // banyak data yang ditampilkan
-      order : [['id', 'ASC']] // mengurutkan
+      // banyak data yang ditampilkan
+      order: [[sortBy, orderBy]], // mengurutkan
+      offset: page, // mulai dari tambah satu
+      limit: pageSize,
     });
     console.log(users);
     return res.json({
@@ -168,6 +172,7 @@ const update = async (req, res) => {
     return res.status(403).json({
       status: "fail",
       msg: "there's a mistake",
+      data: user,
     });
   }
 };
